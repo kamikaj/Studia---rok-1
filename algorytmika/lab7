@@ -1,1 +1,190 @@
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <bits/ranges_algo.h>
 
+using namespace std;
+
+struct Student {
+    string imie;
+    string nazwisko;
+    int punkty;
+};
+
+void sort(vector<Student> &s) {
+    int i, k;
+    Student temp;
+    for (i = 0; i < s.size(); ++i) {
+        for (k = i + 1; k < s.size(); ++k) {
+            if (s[i].punkty > s[k].punkty) {
+                temp = s[i];
+                s[i] = s[k];
+                s[k] = temp;
+            }
+        }
+    }
+}
+
+void wyswietl(vector<Student> &s) {
+    for (int i = 0; i < s.size(); ++i) {
+        cout << s[i].imie << " " << s[i].nazwisko << " " << s[i].punkty << endl;
+    }
+}
+void zapis_wyniku(vector<Student> &s, int srodek) {
+    ofstream plik("wyniki.csv", ios::app);
+    plik<<s[srodek].imie<<";"<<s[srodek].nazwisko<<";";
+    plik<<s[srodek].punkty<<endl;
+
+    plik.close();
+}
+
+void liniowe_bisekcja(int &wartosc, vector<Student> &s, int srodek) {
+    int i = srodek-1;
+    while (s[i].punkty == wartosc) {
+        cout<<endl;
+        cout<<s[i].imie<<" "<<s[i].nazwisko<<" "<<s[i].punkty<<endl;
+        cout<<"indeks: "<<i<<endl;
+        cout<<endl;
+        zapis_wyniku(s, i);
+        i--;
+    }
+    i = srodek+1;
+    while (s[i].punkty == wartosc) {
+        cout<<endl;
+        cout<<s[i].imie<<" "<<s[i].nazwisko<<" "<<s[i].punkty<<endl;
+        cout<<"indeks: "<<i<<endl;
+        cout<<endl;
+        zapis_wyniku(s, i);
+        i++;
+    }
+    }
+
+void bisekcja(vector<Student> &s) {
+    cout<<"Podaj szukana wartoc punktow: ";
+    int wartosc;
+    cin>>wartosc;
+    int lewy=0;
+    int prawy = s.size()-1;
+    int flaga = 1;
+    while (lewy <= prawy) {
+        int srodek = (lewy+prawy)/2;
+        if (s[srodek].punkty==wartosc) {
+            cout<<s[srodek].imie<<" "<<s[srodek].nazwisko<<" "<<s[srodek].punkty<<endl;
+            cout<<"indeks: "<<srodek<<endl<<endl;
+            zapis_wyniku(s, srodek);
+            flaga=0;
+            liniowe_bisekcja(wartosc, s, srodek);
+            break;
+        }
+            if (wartosc < s[srodek].punkty) {
+                prawy = srodek-1;
+            }
+            else {
+                lewy = srodek +1;
+            }
+    }
+    if (flaga == 1) {
+        cout<<"Nikt nie ma podaj liczby punktow";
+    }
+}
+
+void wyszukiwanie_liniowe(int &wartosc, vector<Student> &s) {
+    cout<<"wyszukiwanie_liniowe"<<endl;
+    int i =0;
+    int n = s.size();
+    int flaga = 1;
+    while (i<n) {
+        if (s[i].punkty==wartosc) {
+            cout<<endl;
+            cout<<s[i].imie<<" "<<s[i].nazwisko<<" "<<s[i].punkty<<endl;
+            cout<<"indeks: "<<i<<endl;
+            cout<<endl;
+            flaga = 0;
+        }
+        i++;
+    }
+    if (flaga==1) {
+        cout<<"Nikt nie ma podanej liczby punktow"<<endl;
+    }
+}
+
+void wczytanie_danych(vector<Student> &studenci) {
+    ifstream plik("studenci.csv");
+    if (!plik) {
+        cerr << "Błąd otwarcia pliku do odczytu!" << endl;
+        return;
+    }
+
+    string linia, punktyStr;
+
+    Student s;
+
+    getline(plik, linia);
+
+    while (getline(plik, linia)) {
+        stringstream ss(linia);
+        getline(ss, s.imie, ';');
+        getline(ss, s.nazwisko, ';');
+        getline(ss, punktyStr, ';');
+
+        try {
+            s.punkty = stoi(punktyStr);  // Konwersja string -> int
+        } catch (...) {
+            cerr << "Błąd konwersji punktów dla: " << s.imie << " " << s.nazwisko << endl;
+            continue;
+        }
+
+        studenci.push_back(s);
+    }
+
+    plik.close();
+
+    // Wyświetlenie wczytanych danych
+    cout << "Wczytani studenci:\n";
+    for (const auto& student : studenci) {
+        cout << student.imie << " " << student.nazwisko << " - " << student.punkty << " pkt\n";
+    }
+}
+
+void Zadanie_72(vector<Student> &studenci) {
+    ofstream plik("wyniki.csv");
+    plik.close();
+    int wartosc;
+    cout<<"Podaj poszukiwana wartosc punktow: ";
+    cin>>wartosc;
+    wyszukiwanie_liniowe(wartosc, studenci);
+}
+
+void Zadanie_73(vector<Student> &studenci) {
+    ofstream plik("wyniki.csv");
+    plik.close();
+    sort(studenci);
+    bisekcja(studenci);
+}
+
+void lab07() {
+    vector<Student> studenci;
+    wczytanie_danych(studenci);
+    int c;
+    int flaga = 0;
+    while (flaga == 0) {
+        cout<<endl;
+        cout<<"1 - szukanie liniowe"<<endl;
+        cout<<"2 - wyszukiwanie bisekcyjne"<<endl;
+        cout<<"3 - wyjscie"<<endl;
+        cin>>c;
+        switch (c) {
+            case 1: Zadanie_72(studenci); break;
+            case 2: Zadanie_73(studenci); break;
+            case 3: flaga = 1 ; break;
+            default: cout<<"Podaj inna wartosc";break;
+        }
+    }
+}
+
+int main() {
+    lab07();
+    return 0;
+}
