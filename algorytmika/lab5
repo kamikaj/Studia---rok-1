@@ -1,1 +1,161 @@
+#include <iostream>
+#include <vector>
+using namespace std;
 
+void algorytm_Boyer_Moore(string &wzor, string &dane, vector<int> &p, int &z,int pocz,int wys3[], int &k) {
+    int n_pocz=(int)pocz;
+    int i=0, dld = dane.length(), dlw=wzor.length();
+    while (i<=dld-dlw) {
+        int j=dlw-1;
+        while (j>-1 && wzor[j]==dane[i+j]) {
+            j--;
+        }
+        if (j==-1) {
+            z++;
+            wys3[k]=i;
+            k++;
+            i++;
+        }
+        else {
+            i=i+max(1,j-p[dane[i+j]-n_pocz]);
+        }
+    }
+    cout<<"Liczba wystapien wzorca wedlug allgorytmu BM: "<<z<<endl;
+    cout<<"Indeksy od ktorych zaczal sie schemat w danych(alg BMP): "<<endl;
+    for (i=0;i<k;i++) {
+        cout<<wys3[i]<<" ";
+    }
+    cout<<endl;
+
+}
+
+
+void tablica_przesuniec_alg_BM(string &wzor, vector<int> &p, int pocz=0, int kon=26) {
+    int dlw = wzor.length(), i=0;
+    int n_pocz=(int)pocz;
+    int n_kon=(int)kon;
+
+    while (i<n_kon-n_pocz) {
+        p[i]=-1;
+        i++;
+    }
+    i=0;
+    while (i<dlw) {
+        p[wzor[i]-n_pocz]=i;
+        cout<<p[wzor[i]-n_pocz]<<" "<<wzor[i]-n_pocz<<endl;
+        i++;
+    }
+}
+
+void algorytm_Knutha_Morris_Pratta(string &wzor, string &dane, vector<int> &p, int &z, int &k, int wys2[]) {
+    int i=0, j=0, dld=dane.length(), dlw=wzor.length();
+    while (i<dld-dlw+1) {
+        while (wzor[j]==dane[i+j] && j<dlw) {
+            j++;
+        }
+        if (j==dlw) {
+            z++;
+            wys2[k]=i;
+            k++;
+        }
+        i = i + max(1,j-p[j]);
+        j = p[j];
+    }
+    cout<<"Liczba wystapien wzorca wedlug allgorytmu KMP: "<<z<<endl;
+    cout<<"Indeksy od ktorych zaczal sie schemat w danych(alg KMP): "<<endl;
+    for (i=0;i<k;i++) {
+        cout<<wys2[i]<<" ";
+    }
+    cout<<endl;
+
+}
+
+void tablica_dopasowan_alg_KMP(string &wzor, vector<int> &p) {
+    p[0]=0;
+    p[1]=0;
+    int t=0, i=1, dlw = wzor.length();
+    while (i<dlw) {
+        while (t>0 && wzor[t]!=wzor[i]) {
+            t=p[t];
+        }
+        if (wzor[t]==wzor[i]) {
+            t++;
+        }
+        p[i+1]=t;
+        i++;
+    }
+}
+
+void algorytm_naiwny(string &wzor,string &dane, int &z, int wys1[], int &k) {
+    int i=0, dld = dane.length(), dlw = wzor.length();
+    //cout<<wzor<<" "<<dld<<" "<<dlw<<endl;
+    while(i<=dld-dlw) {
+        int j=0;
+        while(j<dlw && wzor[j]==dane[i+j]) {
+            j++;
+            //<<wzor[j]<<" "<<dane[i+j]<<endl;
+        }
+        if (j==dlw) {
+            z++;
+            wys1[k]=i;
+            k++;
+        }
+        i++;
+    }
+    cout<<"Liczba wystapien wzorca wedlug allgorytmu naiwnego: "<<z<<endl;
+
+    cout<<"Indeksy od ktorych zaczal sie schemat w danych(alg naiwny): "<<endl;
+    for (i=0;i<k;i++) {
+        cout<<wys1[i]<<" ";
+    }
+    cout<<endl;
+}
+
+void odczyt_danych(string &wzor, string &dane) {
+
+    cout<<"Podaj wzorzec: "<<endl;
+    getline(cin,wzor);
+    cout<<"Podaj dane: "<<endl;
+    getline(cin,dane);
+}
+
+void wypisz_dane(string &dane, string &wzor) {
+    cout<<endl<<"wzor: "<<endl<< wzor<<endl<<endl<<"dane: "<<endl<<dane<<endl<<endl;
+}
+
+
+void lab_05(){
+    int i=0, dlt, dlw, z=0, k, pocz, c;
+    string wzor=" ", dane=" ";
+    odczyt_danych(wzor, dane);
+    wypisz_dane(dane, wzor);
+    vector<int> p(wzor.length() + 1);
+    int wys1[dane.length()], wys2[dane.length()], wys3[dane.length()];
+
+    bool exit = false;
+    while (exit == false) {
+        cout<<endl;
+        cout<<"Wybierz algorytm"<<endl;
+        cout<<"1 - algorytm naiwny"<<endl<<"2 - algorytm KMP"<<endl<<"3 - algorytm BP"<<endl<<"4 - wyjscie"<<endl;
+        cout<<endl;
+        cin>>c;
+        switch (c) {
+            case 1: algorytm_naiwny(wzor, dane, z, wys1, k=0); break;
+            case 2:
+                tablica_dopasowan_alg_KMP(wzor, p);
+                algorytm_Knutha_Morris_Pratta(wzor, dane, p, z=0, k=0, wys2);
+                break;
+            case 3:
+                tablica_przesuniec_alg_BM(wzor, p);
+                algorytm_Boyer_Moore(wzor, dane, p, z=0, pocz=0, wys3 ,k=0);
+                break;
+            case 4: exit = true; break;
+            default: cout<<"Podaj wartosc jeszcze raz"<<endl;break;
+        }
+    }
+}
+int main() {
+    lab_05();
+
+    return 0;
+}
