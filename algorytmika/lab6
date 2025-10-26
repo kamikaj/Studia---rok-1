@@ -1,1 +1,98 @@
+#include <iostream>
+#include <fstream>
+#include <math.h>
+#include <sstream>
+#include <valarray>
 
+using namespace std;
+
+
+int make_hash(int hash, char s, int off, int p, int exp) {
+    hash = hash + ((int)s - off) * pow(p, exp);
+    return hash;
+}
+
+
+int update_hash(int hash, char s_prev, char s_next, int off, int p, int exp) {
+    int u_hash = hash - ((int)s_prev - off) * pow(p, exp);
+    u_hash = u_hash * p;
+    u_hash = u_hash + ((int)s_next - off);
+    return u_hash;
+}
+
+
+void alg_Karpa_rabina(int lenPattern, string pattern, string text, int off, int p) {
+    int hashP = 0, hashT = 0, i = 0;
+    int lenText = text.length();
+
+    while (i < lenPattern) {
+        hashP = hashP + make_hash(hashP, pattern[i], off, p, lenPattern - i - 1);
+        hashT = hashT + make_hash(hashT, text[i], off, p, lenText - i - 1);
+        i++;
+    }
+
+    int j = 0;
+    while (j <= lenText - lenPattern) {
+        if (hashP == hashT) {
+            cout << "Dopasowanie na pozycji: " << j << endl;
+        }
+        if (j + lenPattern < lenText) {
+            hashT = update_hash(hashT, text[j], text[j + lenPattern], off, p, lenPattern - 1);
+        }
+        j++;
+    }
+    cout << i << endl;
+}
+
+void odczyt_pliku_txt() {
+    fstream plik;
+    plik.open("tekst.txt", ios::in);
+
+    if (!plik) {
+        cerr << "Nie można otworzyć pliku!" << endl;
+        return;
+    }
+
+    stringstream buffer;
+    buffer << plik.rdbuf();
+    string odczyt = buffer.str();
+    int i=0;
+   /* while (getline(odczyt, linia)) {
+        if (i==0) {
+            pattern = linia;
+        }
+        else {
+
+        }
+    }
+    cout << "Zawartosc pliku:\n" << odczyt << endl;
+*/
+
+    stringstream ss(odczyt);
+    string linia;
+    string pattern;
+    string text;
+    if (getline(ss, linia)) {
+        pattern = linia;
+    }
+    while (getline(ss, linia)) {
+        text += linia + "\n";
+    }
+
+    cout << "Wzorzec: " << pattern << endl;
+    cout << "Tekst do przeszukiwania:\n" << text << endl;
+    plik.close();
+    alg_Karpa_rabina(pattern.length(), pattern, text, 'a', 31);
+}
+
+void lab06() {
+    string text, pattern;
+    odczyt_pliku_txt();
+
+}
+
+int main() {
+    lab06();
+
+    return 0;
+}
