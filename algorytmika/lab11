@@ -1,1 +1,442 @@
+#include <iostream>
+#include <random>
 
+using namespace std;
+
+struct element {
+    int number;
+    element* next;
+};
+
+struct elementD {
+    int number;
+    elementD* next;
+    elementD* prev;
+};
+
+struct single_list {
+    element* head;
+    element* tail;
+    int counter;
+};
+
+struct double_list {
+    elementD* head;
+    elementD* tail;
+    int counter;
+};
+
+void add_tail(single_list &list, int value) {
+    element* el;
+    el=new element;
+    el->number=value;
+    el->next=nullptr;
+    if (list.tail!=nullptr) {
+        list.tail->next=el;
+    } else {
+        list.head=el;
+    }
+    list.tail=el;
+    list.counter++;
+}
+
+void add_tailD(double_list &list, int value) {
+    elementD* el;
+    el = new elementD;
+    el->number = value;
+    el->next = nullptr;
+    el->prev = nullptr;
+    if (list.tail != nullptr) {
+        list.tail->next = el;
+        el->prev = list.tail;
+    } else {
+        list.head = el;
+    }
+    list.tail = el;
+    list.counter++;
+}
+
+void add_head(single_list &list, int value) {
+    element* el;
+    el=new element;
+    el->number=value;
+    el->next=list.head;
+    list.head=el;
+    if (list.tail==nullptr) {
+        list.tail=el;
+    }
+    list.counter++;
+}
+
+void add_headD(double_list &list, int value) {
+    elementD* el;
+    el = new elementD;
+    el->number = value;
+    el->next = nullptr;
+    el->prev = nullptr;
+    if (list.head != nullptr) {
+        list.head->prev = el;
+        el->next = list.head;
+    } else {
+        list.tail = el;
+    }
+    list.head = el;
+    list.counter++;
+}
+
+void add_position(single_list& list,int value, int position) {
+    element* el;
+    element* temp;
+    int i;
+    el=new element;
+    el->number = value;
+    temp=list.head;
+    i=1;
+    while (i<position-1) {
+        temp=temp->next;
+        i++;
+    }
+    el->next=temp->next;
+    temp->next=el;
+    list.counter++;
+}
+
+void add_positionD(double_list& list,int value, int position) {
+    elementD* el;
+    elementD* temp;
+    int i = 1;
+    temp = list.head;
+    while (i<position-1) {
+        temp=temp->next;
+        i++;
+    }
+    el = new elementD;
+    el->number = value;
+    el->prev = temp;
+    el->next = temp->next;
+    temp->next->prev = el;
+    temp->next = el;
+    list.counter++;
+}
+
+void delete_tail(single_list& list) {
+    element* temp;
+    temp = list.tail;
+    if (list.counter==1) {
+        list.tail=nullptr;
+        list.head=nullptr;
+    } else {
+        element* bef_temp;
+        int i;
+        bef_temp=list.head;
+        i=1;
+        while (i<list.counter-1) {
+            bef_temp=bef_temp->next;
+            i++;
+        }
+        list.tail=bef_temp;
+        list.tail->next=nullptr;
+    }
+    delete temp;
+    list.counter--;
+}
+
+void delete_tailD(double_list& list) {
+    elementD* temp;
+    temp = list.tail;
+    if (list.counter == 1) {
+        list.tail = nullptr;
+        list.head = nullptr;
+    } else {
+        list.tail = list.tail->prev;
+        list.tail->next = nullptr;
+    }
+    delete temp;
+    list.counter--;
+}
+
+void delete_head(single_list& list) {
+    element* temp;
+    temp=list.head;
+    list.head = list.head->next;
+    if (list.counter==1) {
+        list.tail=nullptr;
+    }
+    delete temp;
+    list.counter--;
+}
+
+void delete_headD(double_list& list) {
+    elementD* temp;
+    temp = list.head;
+    if (list.counter == 1) {
+        list.tail = nullptr;
+        list.head = nullptr;
+    } else {
+        list.head = list.head->next;
+        list.head->prev = nullptr;
+    }
+    delete temp;
+    list.counter--;
+}
+
+void delete_position(single_list& list, int position) {
+    int i;
+    element* temp;
+    element* prev;
+    prev=list.head;
+    i=1;
+    while (i<position-1) {
+        prev=prev->next;
+        i++;
+    }
+    temp=prev->next;
+    prev->next=temp->next;
+    delete temp;
+    list.counter--;
+}
+
+void delete_positionD(double_list& list, int position) {
+    int i;
+    elementD* temp;
+    elementD* temp_us;
+    temp = list.head;
+    i=1;
+    while (i<position-1) {
+        temp=temp->next;
+        i++;
+    }
+    temp_us = temp->next;
+    temp->next = temp_us->next;
+    temp->next->prev = temp;
+    delete temp_us;
+    list.counter--;
+}
+
+void show(single_list list) {
+    int i=1;
+    element* temp;
+    temp = list.head;
+    while (i <= list.counter) {
+        cout<<temp->number<<endl;
+        temp = temp->next;
+        i++;
+    }
+}
+
+void showD(double_list list) {
+    int i=1;
+    elementD* temp;
+    temp = list.head;
+    while (i <= list.counter) {
+        cout<<temp->number<<endl;
+        temp = temp->next;
+        i++;
+    }
+}
+
+int isEmpty (single_list list) {
+    if (list.head==nullptr) {
+        return 1;
+    }
+    return 0;
+}
+
+int isEmptyD (double_list list) {
+    if (list.head==nullptr) {
+        return 1;
+    }
+    return 0;
+}
+
+int losowyElement() {
+{
+        random_device rd;                      // źródło losowości
+        mt19937 gen(rd());                     // generator liczb pseudolosowych
+        uniform_int_distribution<> dist(1, 50); // rozkład jednostajny w zakresie 1–50
+        return dist(gen);                           // zwróć losową liczbę
+    }
+
+}
+
+void zadanie111() {
+    single_list list;
+    list.head = nullptr;
+    list.tail = nullptr;
+    list.counter = 0;
+    while (true) {
+        int opcja;
+        cout<<"1. Czy lista jest pust?\n";
+        cout<<"2. Dodaj losowy element(od 1 do 50) na koniec listy\n";
+        cout<<"3. Dodaj losowy element(od 1 do 50) na poczatek listy\n";
+        cout<<"4. Dodaj losowy element na okreslona pozycje\n";
+        cout<<"5. Usuniecie elementu z konca listy\n";
+        cout<<"6. Usuniecie elementu z poczatku listy\n";
+        cout<<"7. Usuniecie elementu z okreslonej pozycji\n";
+        cout<<"8. Pobranie pierwszego elementu z listy i wyswietlenie\n";
+        cout<<"9. Pobranie ostatniego elementu z listy i wyswietlenie\n";
+        cout<<"10. Policzenie sredniej arytmetycznej\n";
+        cout<<"11. Element maksymalny oraz jego pozycja\n";
+        cout<<"12. Wyswietl liste\n";
+        cout<<"13. Usun cala liste i zwolnij pamiec\n";
+        cout<<"14. Exit\n";
+        cin>>opcja;
+        switch (opcja) {
+            case 1: {
+                    if (isEmpty(list)==1) {
+                        cout<<"Lista jest pusta"<<endl;
+                    } else {
+                        cout<<"lista nie jest pusta"<<endl;
+                    }
+            } break;
+            case 2: {
+                add_tail(list, losowyElement());
+            } break;
+            case 3: {
+                add_head(list, losowyElement());
+            } break;
+            case 4: {
+                int pozycja;
+                cout<<"Podaj pozycje elementu do dodania\n";
+                cin>>pozycja;
+                if (pozycja >= 1 && pozycja <= list.counter) {
+                    if (pozycja == 1) {
+                        add_head(list, losowyElement());
+                    } else {
+                        add_position(list, losowyElement(), pozycja);
+                    }
+                } else {
+                    cout << "Nie ma takiej pozycji." << endl;
+                }
+            } break;
+            case 5: {
+                delete_tail(list);
+            } break;
+            case 6: {
+                delete_head(list);
+            } break;
+            case 7: {
+                int pozycja;
+                cout<<"Podaj pozycje elementu do usuniecia\n";
+                cin>>pozycja;
+                if (pozycja < list.counter && pozycja > 1) {
+                    delete_position(list, pozycja);
+                } else {
+                    if(pozycja == 1) {
+                        delete_head(list);
+                    }else {
+                        if (pozycja == list.counter) {
+                            delete_tail(list);;
+                        } else {
+                            cout<<"nie ma takiej pozycji";
+                        }
+                    }
+
+                }
+            } break;
+            case 8: {
+                if (list.head!=nullptr) {
+                    cout<<"Pierwszym elementem z listy jest:"<<list.head->number<<endl;
+                }
+            } break;
+            case 9: {
+                if (list.head!=nullptr) {
+                    cout<<"Ostatnim elementem z listy jest:"<<list.tail->number<<endl;
+                }
+            } break;
+            case 10: {
+                if (list.counter != 0) {
+                    element* temp;
+                    temp = list.head;
+                    int i = 1;
+                    float suma = 0;
+                    float srednia;
+                    while (temp != nullptr) {
+                        suma = suma + temp->number;
+                        temp=temp->next;
+                    }
+                    float dzielnik = list.counter;
+                    srednia = suma / dzielnik;
+                    cout<<"srednia wynosi: "<<srednia<<endl;
+                } else {
+                    cout<<"lista nie ma elementow"<<endl;
+                }
+            } break;
+            case 11: {
+                if (list.counter!=0) {
+                    int max;
+                    element* temp;
+                    temp = list.head;
+                    max = temp->number;
+                    int Poz = 0, maxPoz=1;
+                    int koniec;
+                    koniec = list.counter;
+                    while (temp != nullptr) {
+                        Poz++;
+                        if (max < temp->number) {
+                            max = temp->number;
+                            maxPoz=Poz;
+                            //cout<<max<<endl;
+                        }
+                            temp=temp->next;
+                    }
+                    cout<<"maksymalna wartosc wynosi: "<<max<<endl;
+                    cout<<"na pozycji "<<maxPoz<<endl;
+                } else {
+                    cout<<"lista nie ma elementow"<<endl;
+                }
+            } break;
+            case 12: {
+                show(list);
+            } break;
+            case 13: {
+                int ilosc = list.counter;
+                int i;
+                for (i=1;i<=ilosc;i++) {
+                    delete_head(list);
+                }
+            }   break;
+            case 14: {
+                exit(0);
+            } break;
+        }
+
+    }
+}
+
+void zadanie112() {
+    double_list l;
+    l.head = nullptr;
+    l.tail = nullptr;
+    l.counter = 0;
+}
+
+int main() {
+    while (true) {
+        int nrZadania;
+        cout<<"1-Zadanie11.1\n";
+        cout<<"2-Zadanie11.2\n";
+        cout<<"3-Zadanie11.3\n";
+        cout<<"4-Zadanie11.4\n";
+        cout<<"5-exit\n";
+        cin>>nrZadania;
+        switch (nrZadania) {
+            case 1: {
+                zadanie111();
+            }   break;
+            case 2: {
+
+            }   break;
+            case 3: {
+
+            }   break;
+            case 4: {
+
+            }   break;
+            case 5: {
+                return 0;
+            }
+        }
+    }
+    return 0;
+}
