@@ -1,1 +1,151 @@
+#include <chrono>
+#include <iostream>
+#include <bits/locale_facets_nonio.h>
+#include <limits>
+#include <thread>
+#include <chrono>
+#include <fstream>
+using namespace std;
 
+struct element {
+    char character;
+    element* next;
+};
+
+struct queue {
+    element* head;
+    element* tail;
+};
+
+
+void push(queue &q, char value) {
+    element* el;
+    el = new element;
+    el -> character=value;
+    el -> next = nullptr;
+    if (q.tail!=nullptr) {
+        q.tail -> next = el;
+    } else {
+        q.head = el;
+    }
+    q.tail = el;
+}
+
+void losowy_push(queue &q) {
+    char value;
+    srand(time(NULL));
+    value = rand() % 255;
+    push(q, value);
+    cout<<"dodano "<<q.tail->character<<endl;
+}
+
+void pop(queue &q) {
+    element temp;
+    q.head = q.head->next;
+    if (q.head==nullptr) {
+        q.tail = nullptr;
+    }
+}
+
+void first(queue q) {
+    cout<<q.head->character<<endl;
+
+}
+
+int isEmpty(queue q) {
+    if (q.head == nullptr) {
+        return 1;
+    }
+    return 0;
+}
+
+void destrukcja(queue &q) {
+    int i=1;
+    while (q.head != nullptr) {
+        cout << "usnieto z kolejki element: "<<q.head->character<<endl;
+        pop(q);
+    }
+}
+
+void plik_dod(queue &q) {
+    fstream plik;
+    plik.open("znaki2.txt", ios::in);
+    string s;
+    string tekst;
+    cout<<s<<endl;
+    while (getline(plik,s)) {
+        tekst+=s+"\n";
+    }
+    cout<<tekst<<endl;
+    for (int i = 0; i < tekst.length(); i++) {
+        //cout<<tekst[i]<<" ";
+        if (int(tekst[i]) >=65 && int(tekst[i]) <= 90) {
+            push(q, tekst[i]);
+        }
+    }
+}
+
+void menu() {
+    queue q;
+    q.head = nullptr;
+    q.tail = nullptr;
+    int a;
+    while (true) {
+        cout<<"1. Czy koleika jest pusta?"<<endl;
+        cout<<"2. losowe dodanie znaku"<<endl;
+        cout<<"3. Usuwanie znaku"<<endl;
+        cout<<"4. Wyswietl pierwszy element"<<endl;
+        cout<<"5. Destrukcja kolejki"<<endl;
+        cout<<"6. Dodaj duze litery z pliku znaki2"<<endl;
+        cout<<"7. Exit"<<endl;
+        cin>>a;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Niepoprawne dane. Podaj liczbe!" << endl;
+        }
+        switch (a) {
+            case 1:
+                if (isEmpty(q)==1) {
+                    cout<<"Kolejka jest pusta"<<endl;
+                } else {
+                    cout<<"Kolejka nie jest pusta"<<endl;
+                }
+                break;
+            case 2:
+                losowy_push(q);
+                break;
+            case 3:
+                if (q.head!=nullptr) {
+                    pop(q);
+                } else {cout<<"Nie mozna usunac elementu kolejka jest pusta"<<endl;}
+                break;
+            case 4:
+                if (q.head != nullptr) {
+                    cout<<"pierwszym elementem kolejnki jest:";
+                    first(q);
+                } else {
+                    cout<<"Nie ma pierwszego elementu, kolejka jest pusta"<<endl;
+                }
+                break;
+            case 5:
+                destrukcja(q);
+                break;
+            case 6:
+                plik_dod(q);
+                break;
+            case 7:
+                exit(0);
+            default:
+                cout<<"Zla wartosc. Sproboj ponownie"<<endl;
+                break;
+
+        }
+    }
+}
+
+int main() {
+    menu();
+
+    return 0;
+}
