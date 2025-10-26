@@ -1,1 +1,80 @@
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+
+struct student {
+    string imie;
+    string nazwisko;
+    int punkty;
+};
+
+void wczytajStudentow(student*& tab, int &n) {
+    string sciezka = "studenci.csv", linia, pomoc;
+    int liczbaStudentow;
+    ifstream plik(sciezka);
+
+    if (!plik.is_open()) {
+        cerr << "Blad: Nie mozna otworzyc pliku " << sciezka << endl;
+        return;
+    }
+
+    plik >> liczbaStudentow;
+    plik.ignore(); // Pominięcie znaku nowej linii
+    n = liczbaStudentow;
+
+    cout << "Liczba studentow: " << liczbaStudentow << endl;
+
+    tab = new student[liczbaStudentow];
+
+    getline(plik, linia); // Pomijamy nagłówek
+
+    for (int i = 0; i < liczbaStudentow; i++) {
+        if (!getline(plik, linia)) break; // Zapobiega wczytaniu pustych wierszy
+
+        stringstream ss(linia);
+        getline(ss, tab[i].imie, ';');
+        getline(ss, tab[i].nazwisko, ';');
+        getline(ss, pomoc);
+        tab[i].punkty = stoi(pomoc); // Zmiana z `atoi` na `stoi`
+    }
+
+    plik.close();
+}
+
+void usunTabliceStudentow(student*& tab) {
+    delete[] tab; // Poprawne usunięcie tablicy dynamicznej
+    tab = nullptr;
+}
+
+void wyswietlStudentow(student* tab, int n) {
+    for (int i = 0; i < n; i++) {
+        cout << "Imie: " << tab[i].imie << " | Nazwisko: " << tab[i].nazwisko << " | Punkty: " << tab[i].punkty << endl;
+    }
+    cout << endl;
+}
+
+void Zadanie() {
+    cout << "Lab 04 " << endl;
+    student* tab = nullptr;
+    int n = 0;
+
+    wczytajStudentow(tab, n);
+
+    if (tab == nullptr || n == 0) {
+        cerr << "Blad: Brak studentow do wyswietlenia!" << endl;
+        return;
+    }
+
+    wyswietlStudentow(tab, n);
+    usunTabliceStudentow(tab); // Dodanie zwolnienia pamięci
+}
+
+int main() {
+    cout << "Lab 4" << endl;
+    Zadanie();
+
+    return 0;
+}
