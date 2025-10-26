@@ -1,1 +1,168 @@
+#include <iostream>
+#include <fstream>
+#include <stack>
 
+using namespace std;
+
+struct element {
+    int number;
+    element* next;
+};
+
+struct element2 {
+    string str;
+    element2* next;
+};
+
+void procedura_push(element* &stack, int value) {
+    element* el=new element;
+    el -> number = value;
+    el -> next = stack;
+    stack = el;
+}
+
+void procedura_push2(element2* &stack, char litera) {
+    element2* el = new element2;
+    el -> str = litera;
+    el -> next = stack;
+    stack = el;
+}
+
+void procedura_pop(element* &stack) {
+    element* temp;
+    temp=stack;
+    stack=stack -> next;
+    delete temp;
+}
+
+void procedura_pop2(element2* &stack) {
+    element2* temp;
+    temp=stack;
+    stack=stack -> next;
+    delete temp;
+}
+
+void isEmpty(element* stack) {
+    if(stack == nullptr) {
+        cout<<"Stos jest pusty"<<endl;
+    } else {
+        cout<<"Stos nie jest pusty"<<endl;
+    }
+}
+
+void top(element* stack) {
+    cout<<stack->number<<endl;
+}
+
+void top2(element2* stack) {
+    ofstream wyjscie("wyniki.txt", ios::app);
+    cout<<stack->str<<endl;
+    wyjscie<<stack->str;
+}
+
+void destruction(element*& stack) {
+    while (stack != nullptr ) {
+        procedura_pop(stack);
+    }
+}
+
+void pokazStos(element2*& stack) {
+    while (stack != nullptr ) {
+        top2(stack);
+        procedura_pop2(stack);
+    }
+}
+
+void plik_reverse(element2* &stack, ofstream& plik) {
+    while (stack != nullptr ) {
+
+        plik<<stack -> str;
+        procedura_pop2(stack);
+    }
+    stack = nullptr;
+}
+
+void menu() {
+    element* stack = nullptr;
+    while(1) {
+        int option;
+        cout<<endl;
+        cout<<"Wybierz opcje:"<<endl;
+        cout<<"1.isEmpty"<<endl;
+        cout<<"2.Push"<<endl;
+        cout<<"3.Pop"<<endl;
+        cout<<"4.Top"<<endl;
+        cout<<"5.Destrukcja stosu"<<endl;
+        cout<<"6.Exit"<<endl;
+        cout<<endl;
+        cin>>option;
+        switch(option) {
+            case 1:isEmpty(stack);break;
+            case 2:cout<<"Podaj watrosc do wrzucenia na stos"<<endl;
+                int value;
+                cin>>value;
+                procedura_push(stack,value);
+                break;
+            case 3:cout<<"Usunieto element"<<endl;
+                if (stack != nullptr) {
+                    procedura_pop(stack);
+                } else {
+                    cout<<"stos jest juz pusty"<<endl;
+                }
+                break;
+            case 4:
+                if (stack!=nullptr) {
+                    top(stack);
+                } else {
+                    cout<<"stos jest pusty"<<endl;
+                }
+                break;
+            case 5:destruction(stack);break;
+            case 6: exit(0);
+        }
+    }
+}
+
+void zadanie1() {
+    menu();
+}
+
+void zadanie2() {
+    element2* stos = nullptr;
+    fstream plik;
+    string linia;
+    plik.open("C:\\Users\\kamik\\Desktop\\algorytmika laby zadania\\Lab9-Stos\\cmake-build-debug\\znaki1.txt", ios::in);
+    if(plik.is_open()) {
+        while(getline(plik, linia)) {
+            for(int i=0;i<linia.length();i++) {
+                //cout<<linia[i]<<endl;
+                linia[i];
+                procedura_push2(stos,linia[i]);
+            }
+            string nowaLinia = "\n";
+            element2* el = new element2;
+            el -> str = nowaLinia;
+            el -> next = stos;
+            stos = el;
+            pokazStos(stos);
+        }
+        plik.close();
+    }
+
+}
+
+int main() {
+    int z;
+    cout<<"Wybierz zadanie: "<<endl;
+    cout<<"Zadanie 1"<<endl;
+    cout<<"Zadanie 2 - odwrocenie koleinosci pliku znaki1.txt"<<endl;
+    cin>>z;
+    switch(z) {
+        case 1:zadanie1();return 0;
+        case 2:zadanie2();return 0;
+    }
+
+    menu();
+
+    return 0;
+}
